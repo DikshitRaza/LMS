@@ -21,7 +21,7 @@ import Notifications from "views/Notifications.js";
 import Icons from "views/Icons.js";
 import Typography from "views/Typography.js";
 import TableList from "views/Tables.js";
-import Maps from "views/Map.js";
+
 import UserPage from "views/User.js";
 import UpgradeToPro from "views/Upgrade.js";
 
@@ -29,57 +29,52 @@ var routes = [
   {
     path: "/dashboard",
     name: "Dashboard",
-    icon: "nc-icon nc-bank",
+    icon: "nc-icon nc-chart-bar-32",  // Example icon class for Dashboard
     component: <Dashboard />,
     layout: "/admin",
   },
   {
-    path: "/icons",
-    name: "Icons",
-    icon: "nc-icon nc-diamond",
+    path: "/Icons",
+    name: "Manage Student",
+    icon: "nc-icon nc-single-02",  // New icon class for Manage Student
     component: <Icons />,
     layout: "/admin",
   },
-  {
-    path: "/maps",
-    name: "Maps",
-    icon: "nc-icon nc-pin-3",
-    component: <Maps />,
-    layout: "/admin",
-  },
+  
+  
   {
     path: "/notifications",
-    name: "Notifications",
-    icon: "nc-icon nc-bell-55",
+    name: "Manage Faculties",
+    icon: "nc-icon nc-hat-3",  // Example icon class for Manage Faculties
     component: <Notifications />,
     layout: "/admin",
   },
   {
     path: "/user-page",
-    name: "User Profile",
-    icon: "nc-icon nc-single-02",
+    name: "Manage Course",
+    icon: "nc-icon nc-bookmark-2",  // Example icon class for Manage Course
     component: <UserPage />,
     layout: "/admin",
   },
   {
     path: "/tables",
-    name: "Table List",
-    icon: "nc-icon nc-tile-56",
+    name: "Manage Schedule",
+    icon: "nc-icon nc-calendar-60",  // Example icon class for Manage Schedule
     component: <TableList />,
     layout: "/admin",
   },
   {
     path: "/typography",
-    name: "Typography",
-    icon: "nc-icon nc-caps-small",
+    name: "Manage Exam",
+    icon: "nc-icon nc-paper",  // Example icon class for Manage Exam
     component: <Typography />,
     layout: "/admin",
   },
   {
     pro: true,
     path: "/upgrade",
-    name: "Upgrade to PRO",
-    icon: "nc-icon nc-spaceship",
+    name: "Manage Certification",
+    icon: "nc-icon nc-badge",  // Example icon class for Manage Certification (Pro)
     component: <UpgradeToPro />,
     layout: "/admin",
   },
