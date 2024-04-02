@@ -6,6 +6,7 @@
     "axios": "^1.6.7",
     "bootstrap": "4.6.2",
     "chart.js": "3.9.1",
+    "jspdf": "^2.5.1",
     "perfect-scrollbar": "1.5.5",
     "react": ">=16.8.0",
     "react-chartjs-2": "3.3.0",
@@ -15,7 +16,8 @@
     "react-scripts": "^5.0.1",
     "reactstrap": "8.10.0",
     "sass": "1.62.1",
-    "universal-cookie": "^7.1.0"
+    "universal-cookie": "^7.1.0",
+    "validator": "^13.11.0"
   },
   "scripts": {
     "start": "react-scripts start",

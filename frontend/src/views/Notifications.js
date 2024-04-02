@@ -1,79 +1,170 @@
-/*!
-
-=========================================================
-* Paper Dashboard React - v1.3.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-* Licensed under MIT (https://github.com/creativetimofficial/paper-dashboard-react/blob/main/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-/*eslint-disable*/
-import React from "react";
-// react plugin for creating notifications over the dashboard
-import NotificationAlert from "react-notification-alert";
-// reactstrap components
+import React, { useState, useEffect } from 'react';
 import {
-  UncontrolledAlert,
-  Alert,
-  Button,
   Card,
   CardHeader,
   CardBody,
   CardTitle,
   Row,
   Col,
-} from "reactstrap";
+  Table,
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+} from 'reactstrap';
+import NotificationAlert from 'react-notification-alert';
 
-function Notifications() {
+const Notifications = () => {
+  const [tableData, setTableData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showAddFacultiesForm, setShowAddFacultiesForm] = useState(false);
+  const [newFacultyData, setNewFacultyData] = useState({
+    username: '',
+    phone: '',
+    email: '',
+    password: '',
+    Category: 'Faculty',
+    experience:'',
+    subject:''
+  });
+  const [selectedFacultyIndex, setSelectedFacultyIndex] = useState(null);
   const notificationAlert = React.useRef();
-  const notify = (place) => {
-    var color = Math.floor(Math.random() * 5 + 1);
-    var type;
-    switch (color) {
-      case 1:
-        type = "primary";
-        break;
-      case 2:
-        type = "success";
-        break;
-      case 3:
-        type = "danger";
-        break;
-      case 4:
-        type = "warning";
-        break;
-      case 5:
-        type = "info";
-        break;
-      default:
-        break;
-    }
-    var options = {};
-    options = {
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('http://localhost:3001/api/Faculties');
+        if (!response.ok) {
+          throw new Error('Data could not be fetched!');
+        }
+        const data = await response.json();
+        setTableData(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const notify = (place, username) => {
+    const type = 'success';
+    const options = {
       place: place,
       message: (
         <div>
           <div>
-            Welcome to <b>Paper Dashboard React</b> - a beautiful freebie for
-            every web developer.
+            User <b>{username}</b> added successfully.
           </div>
         </div>
       ),
       type: type,
-      icon: "nc-icon nc-bell-55",
+      icon: 'nc-icon nc-bell-55',
       autoDismiss: 7,
     };
     notificationAlert.current.notificationAlert(options);
   };
+
+  const handleRemove = async (index) => {
+    const updatedTableData = [...tableData];
+    const removedItem = updatedTableData.splice(index, 1)[0];
+    setTableData(updatedTableData);
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/api/removeUser/${removedItem._id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to remove user from the server');
+      }
+
+      console.log(`User ${removedItem.username} removed successfully`);
+    } catch (error) {
+      console.error('Error removing user:', error);
+    }
+  };
+
+  const handleAddFaculties = () => {
+    setShowAddFacultiesForm(true);
+  };
+
+  const handleEdit = (index) => {
+    setNewFacultyData(tableData[index]);
+    setSelectedFacultyIndex(index);
+    setShowAddFacultiesForm(true);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewFacultyData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveFaculties = async () => {
+    try {
+      const apiUrl = selectedFacultyIndex !== null
+        ? `http://localhost:3001/api/updateFaculty/${tableData[selectedFacultyIndex]._id}`
+        : 'http://localhost:3001/api/addFaculties';
+
+      const response = await fetch(apiUrl, {
+        method: selectedFacultyIndex !== null ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...newFacultyData,
+          Category: 'Faculty',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save faculties to the server');
+      }
+
+      const updatedData = await response.json();
+      if (selectedFacultyIndex !== null) {
+        const updatedTableData = [...tableData];
+        updatedTableData[selectedFacultyIndex] = updatedData;
+        setTableData(updatedTableData);
+      } else {
+        setTableData([...tableData, updatedData]);
+      }
+
+      console.log('Faculties saved successfully');
+      notify('tc', 'New Faculty');
+      setShowAddFacultiesForm(false);
+      setNewFacultyData({
+        username: '',
+        phone: '',
+        email: '',
+        password: '',
+        Category: 'Faculty',
+        experience:'',
+        subject:''
+      });
+      setSelectedFacultyIndex(null);
+    } catch (error) {
+      console.error('Error saving faculties:', error);
+    }
+  };
+
+  if (error) return <div>Error: {error}</div>;
+  if (isLoading) return <div>Loading...</div>;
+
   return (
     <>
       <div className="content">
@@ -82,116 +173,49 @@ function Notifications() {
           <Col md="12">
             <Card>
               <CardHeader>
-                <CardTitle tag="h5">Notifications</CardTitle>
-                <p className="card-category">
-                  Handcrafted by our former colleague{" "}
-                  <a
-                    target="_blank"
-                    href="https://www.instagram.com/manu.nazare/"
-                  >
-                    Nazare Emanuel-Ioan (Manu)
-                  </a>
-                  . Please checkout the{" "}
-                  <a
-                    href="https://github.com/creativetimofficial/react-notification-alert"
-                    target="_blank"
-                  >
-                    full documentation.
-                  </a>
-                </p>
+                <CardTitle tag="h5">Faculty</CardTitle>
               </CardHeader>
               <CardBody>
-                <Row>
-                  <Col md="6">
-                    <Card className="card-plain">
-                      <CardHeader>
-                        <CardTitle tag="h5">Notifications Style</CardTitle>
-                      </CardHeader>
-                      <CardBody>
-                        <Alert color="info">
-                          <span>This is a plain notification</span>
-                        </Alert>
-                        <UncontrolledAlert color="info" fade={false}>
-                          <span>This is a notification with close button.</span>
-                        </UncontrolledAlert>
-                        <UncontrolledAlert
-                          className="alert-with-icon"
-                          color="info"
-                          fade={false}
-                        >
-                          <span
-                            data-notify="icon"
-                            className="nc-icon nc-bell-55"
-                          />
-                          <span data-notify="message">
-                            This is a notification with close button and icon.
-                          </span>
-                        </UncontrolledAlert>
-                        <UncontrolledAlert
-                          className="alert-with-icon"
-                          color="info"
-                          fade={false}
-                        >
-                          <span
-                            data-notify="icon"
-                            className="nc-icon nc-chart-pie-36"
-                          />
-                          <span data-notify="message">
-                            This is a notification with close button and icon
-                            and have many lines. You can see that the icon and
-                            the close button are always vertically aligned. This
-                            is a beautiful notification. So you don't have to
-                            worry about the style.
-                          </span>
-                        </UncontrolledAlert>
-                      </CardBody>
-                    </Card>
-                  </Col>
-                  <Col md="6">
-                    <Card className="card-plain">
-                      <CardHeader>
-                        <CardTitle tag="h5">Notification states</CardTitle>
-                      </CardHeader>
-                      <CardBody>
-                        <UncontrolledAlert color="primary" fade={false}>
-                          <span>
-                            <b>Primary - </b>
-                            This is a regular notification made with
-                            color="primary"
-                          </span>
-                        </UncontrolledAlert>
-                        <UncontrolledAlert color="info" fade={false}>
-                          <span>
-                            <b>Info - </b>
-                            This is a regular notification made with
-                            color="info"
-                          </span>
-                        </UncontrolledAlert>
-                        <UncontrolledAlert color="success" fade={false}>
-                          <span>
-                            <b>Success - </b>
-                            This is a regular notification made with
-                            color="success"
-                          </span>
-                        </UncontrolledAlert>
-                        <UncontrolledAlert color="warning" fade={false}>
-                          <span>
-                            <b>Warning - </b>
-                            This is a regular notification made with
-                            color="warning"
-                          </span>
-                        </UncontrolledAlert>
-                        <UncontrolledAlert color="danger" fade={false}>
-                          <span>
-                            <b>Danger - </b>
-                            This is a regular notification made with
+                <Table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Phone</th>
+                      <th>Email</th>
+                      <th>subject</th>
+                      <th>experience</th>
+                      <th>Remove</th>
+                      <th>Edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tableData.map((row, index) => (
+                      <tr key={index}>
+                        <td>{row.username}</td>
+                        <td>{row.phone}</td>
+                        <td>{row.email}</td>
+                        <td>{row.subject}</td>
+                        <td>{row.experience}</td>
+                        <td>
+                          <Button
                             color="danger"
-                          </span>
-                        </UncontrolledAlert>
-                      </CardBody>
-                    </Card>
-                  </Col>
-                </Row>
+                            onClick={() => handleRemove(index)}
+                          >
+                            Remove
+                          </Button>
+                        </td>
+                        <td>
+                          <Button
+                            color="info"
+                            onClick={() => handleEdit(index)}
+                          >
+                            Edit
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
               </CardBody>
             </Card>
           </Col>
@@ -202,75 +226,14 @@ function Notifications() {
               <CardBody>
                 <div className="places-buttons">
                   <Row>
-                    <Col className="ml-auto mr-auto text-center" md="6">
-                      <CardTitle tag="h4">Notifications Places</CardTitle>
-                      <p className="category">Click to view notifications</p>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col className="ml-auto mr-auto" lg="8">
-                      <Row>
-                        <Col md="4">
-                          <Button
-                            block
-                            color="primary"
-                            onClick={() => notify("tl")}
-                          >
-                            Top Left
-                          </Button>
-                        </Col>
-                        <Col md="4">
-                          <Button
-                            block
-                            color="primary"
-                            onClick={() => notify("tc")}
-                          >
-                            Top Center
-                          </Button>
-                        </Col>
-                        <Col md="4">
-                          <Button
-                            block
-                            color="primary"
-                            onClick={() => notify("tr")}
-                          >
-                            Top Right
-                          </Button>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col className="ml-auto mr-auto" lg="8">
-                      <Row>
-                        <Col md="4">
-                          <Button
-                            block
-                            color="primary"
-                            onClick={() => notify("bl")}
-                          >
-                            Bottom Left
-                          </Button>
-                        </Col>
-                        <Col md="4">
-                          <Button
-                            block
-                            color="primary"
-                            onClick={() => notify("bc")}
-                          >
-                            Bottom Center
-                          </Button>
-                        </Col>
-                        <Col md="4">
-                          <Button
-                            block
-                            color="primary"
-                            onClick={() => notify("br")}
-                          >
-                            Bottom Right
-                          </Button>
-                        </Col>
-                      </Row>
+                    <Col md="4">
+                      <Button
+                        block
+                        color="info"
+                        onClick={handleAddFaculties}
+                      >
+                        Add Faculties
+                      </Button>
                     </Col>
                   </Row>
                 </div>
@@ -278,9 +241,118 @@ function Notifications() {
             </Card>
           </Col>
         </Row>
+
+        {showAddFacultiesForm && (
+          <Row>
+            <Col md="12">
+              <Card>
+                <CardHeader>
+                  <CardTitle tag="h5">
+                    {selectedFacultyIndex !== null ? 'Edit Faculty' : 'Add Faculties'}
+                  </CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <Form>
+                    <Row>
+                      <Col md="6">
+                        <FormGroup>
+                          <Label for="username">Username:</Label>
+                          <Input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value={newFacultyData.username}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col md="6">
+                        <FormGroup>
+                          <Label for="phone">Phone:</Label>
+                          <Input
+                            type="text"
+                            id="phone"
+                            name="phone"
+                            value={newFacultyData.phone}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md="6">
+                        <FormGroup>
+                          <Label for="email">Email:</Label>
+                          <Input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={newFacultyData.email}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </FormGroup>
+                        <FormGroup>
+                          <Label for="password">Password:</Label>
+                          <Input
+                            type="password"
+                            id="password"
+                            name="password"
+                            value={newFacultyData.password}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </FormGroup>
+                        <FormGroup>
+                          <Label for="subject">subject:</Label>
+                          <Input
+                            type="text"
+                            id="subject"
+                            name="subject"
+                            value={newFacultyData.subject}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </FormGroup>
+                        <FormGroup>
+                          <Label for="experience">Experience:</Label>
+                          <Input
+                            type="number"
+                            id="experience"
+                            name="experience"
+                            value={newFacultyData.experience}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                    <Button color="success" onClick={handleSaveFaculties}>
+                      {selectedFacultyIndex !== null ? 'Update Faculty' : 'Save Faculties'}
+                    </Button>
+                    {selectedFacultyIndex !== null && (
+                      <Button
+                        color="default"
+                        className="ml-2"
+                        onClick={() => {
+                          setShowAddFacultiesForm(false);
+                          setSelectedFacultyIndex(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </Form>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+        )}
       </div>
     </>
   );
-}
+};
 
 export default Notifications;

@@ -5,9 +5,9 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
     phone: Number,
-    userType: String,
-    status: Number
+    category: String, // Changed from Category to category
+    experience: Number, // New field for experience
+    subject: String
 });
 
 module.exports = mongoose.model("NewUser", userSchema);
-
