@@ -56,9 +56,9 @@ mongoose.connect("mongodb://127.0.0.1:27017/mini-project", {
     
 // Login endpoint
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password,category } = req.body;
   try {
-    const user = await NewUser.findOne({ email });
+    const user = await NewUser.findOne({ email,category });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -66,13 +66,16 @@ app.post('/login', async (req, res) => {
     if (!passwordMatch) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    req.session.user = { email };
+    req.session.user = { email,category };
+    console.log(user.category)
+
     res.status(200).json({ message: "Login successful" });
   } catch (err) {
     console.error('Error during login:', err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 
 app.get('/Profile', async (req, res) => {
   const { email } = req.query; // Assuming you're sending email as a query parameter
@@ -85,6 +88,34 @@ app.get('/Profile', async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
+
+
+
+
+
+
+
+
+app.post('/update-profile', async (req, res) => {
+  const { email, username, phone } = req.body;
+  try {
+      const updatedUser = await NewUser.findOneAndUpdate(
+          { email },
+          { $set: { username, phone } },
+          { new: true } // Return the updated document
+      );
+      if (updatedUser) {
+          return res.json({ message: 'Profile updated successfully.', user: updatedUser });
+      } else {
+          return res.status(404).json({ error: 'User not found.' });
+      }
+  } catch (error) {
+      console.error('Error updating profile:', error.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 
 
@@ -131,32 +162,31 @@ app.post('/api/check-email', async (req, res) => {
     });  
 
 
-    app.get('/api/users', async (req, res) => {
-      try {
-        // Assuming you have a model named NewUser
-        const users = await NewUser.find({Category:"Student"});
-       
-    
-        // Send the filtered users as a JSON response
-        res.json(users);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      }
-    });
- 
+// GET all users
+// GET student users
+app.get('/api/users', async (req, res) => {
+  try {
+    // Fetch student users from the database
+    const students = await NewUser.find({ category: 'Student' });
+    res.json(students);
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
- // API endpoint to add a new user
+
+// POST to add a new user
 app.post('/api/addUser', async (req, res) => {
   try {
-    const { username, phone, email, Category } = req.body;
+    const { username, phone, email, category } = req.body;
 
     // Create a new user instance using the NewUser model
     const newUser = new NewUser({
       username,
       phone,
       email,
-      Category: Category || 'Student', // Default Category to 'student' if not provided
+      category: category || 'Student', // Default Category to 'Student' if not provided
     });
 
     // Save the new user to the database
@@ -487,6 +517,119 @@ app.get('/fetchStudents', async (req, res) => {
 
    
 
+
+
+
+
+
+
+
+// Endpoint to get user category based on email
+app.get('/api/user/category', (req, res) => {
+  const { email } = req.query;
+
+  // Find the user in the database based on email
+  const user = newuser.find(user => user.email === email);
+
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  // Return the user's category
+  res.json({ category: user.category });
+});
+
+
+
+
+
+
+
+// Define Exam schema
+const examSchema = new mongoose.Schema({
+  batchId: String,
+  date: String,
+  time: String,
+  questionsFile: String, // Assuming you store file paths in the database
+});
+
+// Create Exam model
+const Exam = mongoose.model('Exam', examSchema);
+
+// Ensure the destination directory exists
+const uploadDir = './uploads/';
+const fs = require('fs');
+const multer = require('multer');
+
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+const path = require('path');
+
+
+// Middleware to handle file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+// Endpoint to handle exam form submission
+app.post('/api/add-exam', upload.single('questionsFile'), async (req, res) => {
+  const { batchId, date, time } = req.body;
+
+  // Check if req.file exists and has a path property
+  if (!req.file || !req.file.path) {
+    return res.status(400).send('No file uploaded or invalid file');
+  }
+
+  const questionsFile = req.file.path; // Store file path in the database
+
+  try {
+    // Create a new exam document
+    const newExam = new Exam({
+      batchId,
+      date,
+      time,
+      questionsFile,
+    });
+
+    // Save the exam to the database
+    await newExam.save();
+
+    res.status(201).send('Exam added successfully!');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error adding exam');
+  }
+});
+
+// Endpoint to get all exams
+app.get('/api/exams', async (req, res) => {
+  try {
+    // Retrieve all exams from the database
+    const exams = await Exam.find();
+    res.json(exams);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error retrieving exams');
+  }
+});
+// Endpoint to get all batch IDs
+app.get('/api/batchIds', async (req, res) => {
+  try {
+    const batchIds = await Batch.distinct('selectedBatchId');
+    res.json(batchIds);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error retrieving batch IDs');
+  }
+});
 
 
 app.listen(port, () => {

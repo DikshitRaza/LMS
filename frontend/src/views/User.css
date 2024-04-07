@@ -1,0 +1,87 @@
+.user-card-body {
+    padding: 20px;
+  }
+  
+  .author {
+    text-align: center;
+  }
+  
+  .title {
+    margin-top: 10px;
+    font-size: 1.5rem;
+  }
+  
+  .description {
+    margin-top: 5px;
+    font-size: 1rem;
+  }
+  
+  .image img {
+    width: 100%;
+  }
+  
+  .card-footer {
+    text-align: center;
+  }
+
+  .user-card-body {
+    padding: 20px;
+  }
+  
+  .author {
+    text-align: center;
+  }
+  
+  .title {
+    margin-top: 10px;
+    font-size: 1.5rem;
+  }
+  
+  .description {
+    margin-top: 5px;
+    font-size: 1rem;
+    color: #333; /* Change text color */
+    line-height: 1.5; /* Increase line height for better readability */
+  }
+  
+  .image img {
+    width: 100%;
+  }
+  
+  .card-footer {
+    text-align: center;
+  }
+  .user-card-body {
+    padding: 20px;
+  }
+  
+  .author {
+    text-align: center;
+  }
+  
+  .title {
+    margin-top: 10px;
+    font-size: 1.5rem;
+  }
+  
+  .description {
+    margin-top: 5px;
+    font-size: 1rem;
+    color: #333; /* Change text color */
+    text-align: center; /* Center-align text */
+    display: flex;
+    align-items: center; /* Vertically align content */
+  }
+  
+  .image img {
+    width: 100%;
+  }
+  
+  .card-footer {
+    text-align: center;
+  }
+    
+  .container{
+    display: grid;
+    grid-template-columns: 20 80 20;
+  }

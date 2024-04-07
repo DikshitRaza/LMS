@@ -76,7 +76,9 @@ function Registration() {
               <select className='dik' value={formData.category} onChange={(e) => handleInputChange('category', e.target.value)}>
                 <option value="">Select</option>
                 <option value="Student">Student</option>
+                <option value="admin">admin</option>
                 <option value="Faculty">Faculty</option>
+                
               </select>
               {formData.category === 'Faculty' && ( // Render the additional fields for Faculty category
                 <>

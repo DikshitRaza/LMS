@@ -1,37 +1,93 @@
-/*!
-
-=========================================================
-* Paper Dashboard React - v1.3.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-* Licensed under MIT (https://github.com/creativetimofficial/paper-dashboard-react/blob/main/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+import React from 'react';
 import Dashboard from "views/Dashboard.js";
 import Notifications from "views/Notifications.js";
 import Icons from "views/Icons.js";
 import Typography from "views/Typography.js";
 import TableList from "views/Tables.js";
 import UserPage from "views/User.js";
-import UpgradeToPro from "views/Upgrade.js";
 import ManageCoursePage from "views/ManageCoursePage.js";
 import BatchManager from "views/BatchManager.js";
+import Courses from "views/Courses";
+import Liveclass from "views/Liveclass";
+import QandA from "views/QandA";
+import UpgradeToPro from "views/Upgrade.js";
 
-var routes = [
+// Function to get user's category from session
+function getUserCategory() {
+  console.log(sessionStorage.getItem("category"))
+  return sessionStorage.getItem("category");
+ 
+  
+}
+const userCategory = getUserCategory();
+// Initial routes without conditional components
+let routes = [];
+
+// Get user category
+
+
+// Conditionally include components based on user's category
+if (userCategory === 'Student') {
+  routes.push(
+    {
+      path: "/dashboard",
+      name: "Dashboard",
+      icon: "nc-icon nc-chart-bar-32",
+      component: <Dashboard />,
+      layout: "/admin",
+    },
+    {
+      path: "/user-page",
+      name: "Profile",
+      icon: "nc-icon nc-bookmark-2",
+      component: <UserPage />,
+      layout: "/admin",
+      category:"admin"
+    },
+    {
+    path: "/Liveclass",
+    name: "My Classes",
+    icon: "nc-icon nc-time-alarm",
+    component: <Liveclass />,
+    layout: "/admin",
+  },
   {
-    path: "/dashboard",
-    name: "Dashboard",
-    icon: "nc-icon nc-chart-bar-32",
-    component: <Dashboard />,
+    path: "/Courses",
+    name: "My Courses",
+    icon: "nc-icon nc-single-copy-04",
+    component: <Courses />,
+    layout: "/admin",
+  },
+  {
+    path: "/QandA",
+    name: "Question and Answer",
+    icon: "nc-icon nc-bullet-list-67",
+    component: <QandA />,
+    layout: "/admin",
+  },
+  );
+} else if (userCategory === 'admin') {
+  routes.push(
+    {
+      path: "/dashboard",
+      name: "Dashboard",
+      icon: "nc-icon nc-chart-bar-32",
+      component: <Dashboard />,
+      layout: "/admin",
+    },
+    {
+      path: "/user-page",
+      name: "Profile",
+      icon: "nc-icon nc-bookmark-2",
+      component: <UserPage />,
+      layout: "/admin",
+      category:"admin"
+    },
+    {
+    path: "/upgrade",
+    name: "Manage Certification",
+    icon: "nc-icon nc-trophy",
+    component: <UpgradeToPro />,
     layout: "/admin",
   },
   {
@@ -49,23 +105,16 @@ var routes = [
     layout: "/admin",
   },
   {
-    path: "/user-page",
-    name: "Profile",
-    icon: "nc-icon nc-bookmark-2",
-    component: <UserPage />,
-    layout: "/admin",
-  },
-  {
     path: "/ManageCoursePage",
     name: "Manage Course",
-    icon: "nc-icon nc-book-bookmark", // Changed icon to represent a book
+    icon: "nc-icon nc-book-bookmark",
     component: <ManageCoursePage />,
     layout: "/admin",
   },
   {
     path: "/BatchManager",
     name: "Batch Manage",
-    icon: "nc-icon nc-watch-time", // Changed icon to represent a watch/time
+    icon: "nc-icon nc-watch-time",
     component: <BatchManager />,
     layout: "/admin",
   },
@@ -79,18 +128,14 @@ var routes = [
   {
     path: "/typography",
     name: "Manage Exam",
-    icon: "nc-icon nc-ruler-pencil", // Changed icon to represent a ruler and pencil
+    icon: "nc-icon nc-ruler-pencil",
     component: <Typography />,
     layout: "/admin",
   },
-  {
-    pro: true,
-    path: "/upgrade",
-    name: "Manage Certification",
-    icon: "nc-icon nc-trophy", // Changed icon to represent a trophy
-    component: <UpgradeToPro />,
-    layout: "/admin",
-  },
-];
+  
+  
+  
+  );
+} 
 
 export default routes;

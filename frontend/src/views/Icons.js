@@ -27,6 +27,7 @@ const TableComponent = ({ onRemove }) => {
       try {
         const response = await fetch('http://localhost:3001/api/users');
         if (!response.ok) {
+      
           throw new Error('Data could not be fetched!');
         }
         const data = await response.json();

@@ -1,152 +1,155 @@
-/*!
-
-=========================================================
-* Paper Dashboard React - v1.3.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-* Licensed under MIT (https://github.com/creativetimofficial/paper-dashboard-react/blob/main/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import React from "react";
-
-// reactstrap components
-import { Card, CardHeader, CardBody, Row, Col } from "reactstrap";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Card, CardHeader, CardBody, Row, Col, Table, FormGroup, Label, Input, Button } from "reactstrap";
 
 function Typography() {
+  const [batchId, setBatchId] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [questionsFile, setQuestionsFile] = useState("");
+  const [exams, setExams] = useState([]);
+  const [batchIds, setBatchIds] = useState([]);
+
+  useEffect(() => {
+    fetchExams();
+    fetchBatchIds();
+  }, []);
+
+  const fetchExams = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/api/exams");
+      setExams(response.data);
+    } catch (error) {
+      console.error("Error fetching exams:", error);
+    }
+  };
+
+  const fetchBatchIds = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/api/batchIds");
+      setBatchIds(response.data);
+    } catch (error) {
+      console.error("Error fetching batch IDs:", error);
+    }
+  };
+
+  const handleAddExam = async () => {
+    const formData = new FormData();
+    formData.append('batchId', batchId);
+    formData.append('date', date);
+    formData.append('time', time);
+    formData.append('questionsFile', questionsFile);
+
+    try {
+      const response = await axios.post("http://localhost:3001/api/add-exam", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.status === 201) {
+        await fetchExams();
+      } else {
+        console.error('Failed to add exam');
+      }
+    } catch (error) {
+      console.error('Error adding exam:', error);
+    }
+
+    setBatchId("");
+    setDate("");
+    setTime("");
+    setQuestionsFile("");
+  };
+
   return (
-    <>
-      <div className="content">
-        <Row>
-          <Col md="12">
-            <Card>
-              <CardHeader>
-                <h5 className="title">Paper Table Heading</h5>
-                <p className="category">Created using Montserrat Font Family</p>
-              </CardHeader>
-              <CardBody>
-                <div className="typography-line">
-                  <h1>
-                    <span>Header 1</span>
-                    The Life of Paper Dashboard
-                  </h1>
-                </div>
-                <div className="typography-line">
-                  <h2>
-                    <span>Header 2</span>
-                    The Life of Paper Dashboard
-                  </h2>
-                </div>
-                <div className="typography-line">
-                  <h3>
-                    <span>Header 3</span>
-                    The Life of Paper Dashboard
-                  </h3>
-                </div>
-                <div className="typography-line">
-                  <h4>
-                    <span>Header 4</span>
-                    The Life of Paper Dashboard
-                  </h4>
-                </div>
-                <div className="typography-line">
-                  <h5>
-                    <span>Header 5</span>
-                    The Life of Paper Dashboard
-                  </h5>
-                </div>
-                <div className="typography-line">
-                  <h6>
-                    <span>Header 6</span>
-                    The Life of Paper Dashboard
-                  </h6>
-                </div>
-                <div className="typography-line">
-                  <p>
-                    <span>Paragraph</span>I will be the leader of a company that
-                    ends up being worth billions of dollars, because I got the
-                    answers. I understand culture. I am the nucleus. I think
-                    that’s a responsibility that I have, to push possibilities,
-                    to show people, this is the level that things could be at.
-                  </p>
-                </div>
-                <div className="typography-line">
-                  <span>Quote</span>
-                  <blockquote>
-                    <p className="blockquote blockquote-primary">
-                      "I will be the leader of a company that ends up being
-                      worth billions of dollars, because I got the answers. I
-                      understand culture. I am the nucleus. I think that’s a
-                      responsibility that I have, to push possibilities, to show
-                      people, this is the level that things could be at." <br />
-                      <br />
-                      <small>- Noaa</small>
-                    </p>
-                  </blockquote>
-                </div>
-                <div className="typography-line">
-                  <span>Muted Text</span>
-                  <p className="text-muted">
-                    I will be the leader of a company that ends up being worth
-                    billions of dollars, because I got the answers...
-                  </p>
-                </div>
-                <div className="typography-line">
-                  <span>Primary Text</span>
-                  <p className="text-primary">
-                    I will be the leader of a company that ends up being worth
-                    billions of dollars, because I got the answers...
-                  </p>
-                </div>
-                <div className="typography-line">
-                  <span>Info Text</span>
-                  <p className="text-info">
-                    I will be the leader of a company that ends up being worth
-                    billions of dollars, because I got the answers...
-                  </p>
-                </div>
-                <div className="typography-line">
-                  <span>Success Text</span>
-                  <p className="text-success">
-                    I will be the leader of a company that ends up being worth
-                    billions of dollars, because I got the answers...
-                  </p>
-                </div>
-                <div className="typography-line">
-                  <span>Warning Text</span>
-                  <p className="text-warning">
-                    I will be the leader of a company that ends up being worth
-                    billions of dollars, because I got the answers...
-                  </p>
-                </div>
-                <div className="typography-line">
-                  <span>Danger Text</span>
-                  <p className="text-danger">
-                    I will be the leader of a company that ends up being worth
-                    billions of dollars, because I got the answers...
-                  </p>
-                </div>
-                <div className="typography-line">
-                  <h2>
-                    <span>Small Tag</span>
-                    Header with small subtitle <br />
-                    <small>Use "small" tag for the headers</small>
-                  </h2>
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-      </div>
-    </>
+    <div className="content">
+      <Row>
+        <Col md="12">
+          <Card>
+            <CardHeader>
+              <h5 className="title">Add Exam</h5>
+            </CardHeader>
+            <CardBody>
+              <FormGroup>
+                <Label for="batchId">Batch ID:</Label>
+                <Input
+                  type="select"
+                  id="batchId"
+                  value={batchId}
+                  onChange={(e) => setBatchId(e.target.value)}
+                >
+                  <option value="">Select Batch ID</option>
+                  {batchIds.map((BatchIds, index) => (
+                    <option key={index} value={BatchIds}>{BatchIds}</option>
+                  ))}
+                </Input>
+              </FormGroup>
+              <FormGroup>
+                <Label for="date">Date:</Label>
+                <Input
+                  type="date"
+                  id="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label for="time">Time:</Label>
+                <Input
+                  type="time"
+                  id="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label for="questionsFile">Upload Questions:</Label>
+                <Input
+                  type="file"
+                  id="questionsFile"
+                  onChange={(e) => setQuestionsFile(e.target.files[0])}
+                />
+              </FormGroup>
+              <Button color="primary" onClick={handleAddExam}>Add Exam</Button>
+            </CardBody>
+          </Card>
+        </Col>
+      </Row>
+      <Row>
+        <Col md="12">
+          <Card>
+            <CardHeader>
+              <h5 className="title">Added Exams</h5>
+            </CardHeader>
+            <CardBody>
+              <Table responsive>
+                <thead className="text-primary">
+                  <tr>
+                    <th>Batch ID</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Questions File</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {exams.map((exam, index) => (
+                    <tr key={index}>
+                      <td>{exam.batchId}</td>
+                      <td>{exam.date}</td>
+                      <td>{exam.time}</td>
+                      <td>
+                        <a href={exam.questionsFile} target="_blank" rel="noopener noreferrer">View PDF</a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </CardBody>
+          </Card>
+        </Col>
+      </Row>
+    </div>
   );
 }
 
