@@ -1,0 +1,33 @@
+.student-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  
+  .student-checkbox {
+    display: flex;
+    align-items: center;
+  }
+  
+  .student-checkbox input[type="checkbox"] {
+    margin-right: 5px;
+  }
+ 
+
+  
+  .scrollable-container {
+    max-height: 300px; /* Set a fixed height for the scrollable container */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+  
+  /* Adjustments for the additional box if needed */
+  .additional-info-box {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  /* Add any additional styling as needed */
+  

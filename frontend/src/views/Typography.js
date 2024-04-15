@@ -9,6 +9,8 @@ function Typography() {
   const [questionsFile, setQuestionsFile] = useState("");
   const [exams, setExams] = useState([]);
   const [batchIds, setBatchIds] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchExams();
@@ -21,6 +23,7 @@ function Typography() {
       setExams(response.data);
     } catch (error) {
       console.error("Error fetching exams:", error);
+      setExams([]);
     }
   };
 
@@ -30,10 +33,14 @@ function Typography() {
       setBatchIds(response.data);
     } catch (error) {
       console.error("Error fetching batch IDs:", error);
+      setBatchIds([]);
     }
   };
 
   const handleAddExam = async () => {
+    setError("");
+    setLoading(true);
+
     const formData = new FormData();
     formData.append('batchId', batchId);
     formData.append('date', date);
@@ -49,18 +56,22 @@ function Typography() {
 
       if (response.status === 201) {
         await fetchExams();
+        setBatchId("");
+        setDate("");
+        setTime("");
+        setQuestionsFile("");
       } else {
-        console.error('Failed to add exam');
+        setError('Failed to add exam');
       }
     } catch (error) {
       console.error('Error adding exam:', error);
+      setError('Error adding exam. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-
-    setBatchId("");
-    setDate("");
-    setTime("");
-    setQuestionsFile("");
   };
+
+  
 
   return (
     <div className="content">
@@ -71,6 +82,7 @@ function Typography() {
               <h5 className="title">Add Exam</h5>
             </CardHeader>
             <CardBody>
+              {error && <div className="text-danger">{error}</div>}
               <FormGroup>
                 <Label for="batchId">Batch ID:</Label>
                 <Input
@@ -80,8 +92,8 @@ function Typography() {
                   onChange={(e) => setBatchId(e.target.value)}
                 >
                   <option value="">Select Batch ID</option>
-                  {batchIds.map((BatchIds, index) => (
-                    <option key={index} value={BatchIds}>{BatchIds}</option>
+                  {batchIds.map((batchId, index) => (
+                    <option key={index} value={batchId}>{batchId}</option>
                   ))}
                 </Input>
               </FormGroup>
@@ -111,7 +123,7 @@ function Typography() {
                   onChange={(e) => setQuestionsFile(e.target.files[0])}
                 />
               </FormGroup>
-              <Button color="primary" onClick={handleAddExam}>Add Exam</Button>
+              <Button color="primary" onClick={handleAddExam} disabled={loading}>Add Exam</Button>
             </CardBody>
           </Card>
         </Col>
@@ -129,20 +141,26 @@ function Typography() {
                     <th>Batch ID</th>
                     <th>Date</th>
                     <th>Time</th>
-                    <th>Questions File</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {exams.map((exam, index) => (
-                    <tr key={index}>
-                      <td>{exam.batchId}</td>
-                      <td>{exam.date}</td>
-                      <td>{exam.time}</td>
-                      <td>
-                        <a href={exam.questionsFile} target="_blank" rel="noopener noreferrer">View PDF</a>
-                      </td>
+                  {Array.isArray(exams) && exams.length > 0 ? (
+                    exams.map((exam, index) => (
+                      <tr key={index}>
+                        <td>{exam.batchId}</td>
+                        <td>{exam.date}</td>
+                        <td>{exam.time}</td>
+                        <td>
+                        <a href={`http://localhost:3001/${exam.questionsFile}`} target="_blank" rel="noopener noreferrer">Download</a>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4">No exams available</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </Table>
             </CardBody>

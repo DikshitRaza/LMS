@@ -23,6 +23,8 @@ function Tables() {
   const [batches, setBatches] = useState([]);
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [batchIDs, setBatchIDs] = useState([]);
+  const [time, setTime] = useState("");
+
 
   useEffect(() => {
     fetchFaculties();
@@ -77,7 +79,7 @@ function Tables() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ selectedBatchId, faculty, link, date }),
+        body: JSON.stringify({ selectedBatchId, faculty, link, date,time }),
       });
 
       if (response.ok) {
@@ -85,6 +87,7 @@ function Tables() {
         setFaculty('');
         setLink('');
         setDate('');
+        setTime('')
         fetchBatches();
       } else {
         console.error('Failed to add batch:', response.statusText);
@@ -166,6 +169,17 @@ function Tables() {
                   />
                 </FormGroup>
                 <FormGroup>
+               <Label for="time">Time</Label>
+              <Input
+               type="time"
+              name="time"
+               id="time"
+               value={time}
+              onChange={(e) => setTime(e.target.value)}
+               />
+               </FormGroup>
+
+                <FormGroup>
                   <Label for="date">Date</Label>
                   <Input
                     type="date"
@@ -175,6 +189,8 @@ function Tables() {
                     onChange={(e) => setDate(e.target.value)}
                   />
                 </FormGroup>
+                   
+
                 <Button color="primary" type="submit">
                   Add Schedule
                 </Button>
@@ -186,6 +202,7 @@ function Tables() {
                     <th>Faculty</th>
                     <th>Link</th>
                     <th>Date</th>
+                    <th>Time</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -196,6 +213,7 @@ function Tables() {
                       <td>{batch.faculty}</td>
                       <td>{batch.link}</td>
                       <td>{batch.date}</td>
+                      <td>{batch.time}</td>
                       <td>
                         <Button color="danger" onClick={() => handleDelete(batch._id)}>Delete</Button>
                       </td>

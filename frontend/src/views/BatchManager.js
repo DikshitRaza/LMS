@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, CardHeader, CardBody, CardTitle, Row, Col, Table, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import './BatchManager.css';
 
 const TableComponent = ({ batches, deleteBatch }) => {
   return (
@@ -39,17 +40,14 @@ const TableComponent = ({ batches, deleteBatch }) => {
   );
 };
 
-
-    
-    
-
-
 const BatchManagerPage = () => {
   const [batches, setBatches] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [students, setStudents] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedStudents, setSelectedStudents] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [studentsPerPage] = useState(5); // Adjust as needed
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newBatch, setNewBatch] = useState({
     batchID: '',
@@ -128,6 +126,13 @@ const BatchManagerPage = () => {
     }
   };
 
+  // Pagination logic
+  const indexOfLastStudent = currentPage * studentsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
+  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
+
+  const paginate = pageNumber => setCurrentPage(pageNumber);
+
   return (
     <div className="content">
       <Row>
@@ -156,24 +161,47 @@ const BatchManagerPage = () => {
                     <Col md={6}>
                       <FormGroup>
                         <Label for="batchID">Batch ID:</Label>
-                        <Input type="text" id="batchID" value={newBatch.batchID} disabled />
+                        <Input type="text" id={newBatch.batchID} value={newBatch.batchID} disabled />
                       </FormGroup>
                     </Col>
                   </Row>
                   <FormGroup>
-                    <Label>Enroll Students:</Label>
-                    {students.map(student => (
-                      <div key={student.username}>
-                        <input
-                          type="checkbox"
-                          id={student._id}
-                          checked={selectedStudents.includes(student.username)}
-                          onChange={() => handleCheckboxChange(student.username)}
-                        />
-                        <label htmlFor={student.username}>{student.username}</label>
+                  <div className="additional-info-box">
+    {/* Content for the additional box */}
+ 
+                    {/* Student pagination and checkboxes */}
+                    <div className="scrollable-container">
+                      <Label>Enroll Students:</Label>
+                      <div className="student-checkboxes">
+                        {currentStudents.map(student => (
+                          <div className="student-checkbox" key={student._id}>
+                            <input
+                              type="checkbox"
+                              id={student._id}
+                              checked={selectedStudents.includes(student.username)}
+                              onChange={() => handleCheckboxChange(student.username)}
+                            />
+                            <label htmlFor={student.username}>{student.username}</label>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                     </div>
                   </FormGroup>
+                  
+                  {/* Pagination component */}
+                  <nav>
+                    <ul className="pagination">
+                      {students.map((student, index) => (
+                        <li key={index} className="page-item">
+                         <button onClick={() => paginate(index + 1)} className="page-link">
+                                  {index + 1}
+                             </button>
+
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
                   <Button color="success" onClick={handleSubmit} disabled={!selectedSubject || selectedStudents.length === 0}>Add</Button>
                 </Form>
               )}

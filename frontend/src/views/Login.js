@@ -9,9 +9,11 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [category, setCategory] = useState('');
+ 
   const cookies = new Cookies();
 
   const submit = async (e) => {
+  
     e.preventDefault();
 
     // Add a validation check for empty email or password

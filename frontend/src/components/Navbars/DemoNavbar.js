@@ -1,23 +1,5 @@
-/*!
-
-=========================================================
-* Paper Dashboard React - v1.3.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-* Licensed under MIT (https://github.com/creativetimofficial/paper-dashboard-react/blob/main/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Collapse,
   Navbar,
@@ -35,15 +17,21 @@ import {
   InputGroupAddon,
   Input,
 } from "reactstrap";
-
 import routes from "routes.js";
 
-function Header(props) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  const [color, setColor] = React.useState("transparent");
+function Header() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [color, setColor] = useState("transparent");
   const sidebarToggle = React.useRef();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Define setAuthenticated function
+  const setAuthenticated = (value) => {
+    // Logic to set authentication state, e.g., using React context or state management library
+  };
+
   const toggle = () => {
     if (isOpen) {
       setColor("transparent");
@@ -52,9 +40,11 @@ function Header(props) {
     }
     setIsOpen(!isOpen);
   };
-  const dropdownToggle = (e) => {
+
+  const dropdownToggle = () => {
     setDropdownOpen(!dropdownOpen);
   };
+
   const getBrand = () => {
     let brandName = "Default Brand";
     routes.map((prop, key) => {
@@ -65,11 +55,20 @@ function Header(props) {
     });
     return brandName;
   };
+
   const openSidebar = () => {
     document.documentElement.classList.toggle("nav-open");
     sidebarToggle.current.classList.toggle("toggled");
   };
-  // function that adds color dark/transparent to the navbar on resize (this is for the collapse)
+
+  const handleLogout = () => {
+    // Clear session/token here (example: clear localStorage)
+    sessionStorage.removeItem("email");
+    setAuthenticated(false); // Call setAuthenticated to clear authentication state
+    // Navigate to the login page
+    navigate("/");
+  };
+
   const updateColor = () => {
     if (window.innerWidth < 993 && isOpen) {
       setColor("dark");
@@ -77,9 +76,11 @@ function Header(props) {
       setColor("transparent");
     }
   };
+
   React.useEffect(() => {
     window.addEventListener("resize", updateColor.bind(this));
   });
+
   React.useEffect(() => {
     if (
       window.innerWidth < 993 &&
@@ -89,8 +90,8 @@ function Header(props) {
       sidebarToggle.current.classList.toggle("toggled");
     }
   }, [location]);
+
   return (
-    // add or remove classes depending if we are on full-screen-maps page or not
     <Navbar
       color={
         location.pathname.indexOf("full-screen-maps") !== -1 ? "dark" : color
@@ -147,7 +148,7 @@ function Header(props) {
             <Dropdown
               nav
               isOpen={dropdownOpen}
-              toggle={(e) => dropdownToggle(e)}
+              toggle={() => dropdownToggle()}
             >
               <DropdownToggle caret nav>
                 <i className="nc-icon nc-bell-55" />
@@ -168,6 +169,16 @@ function Header(props) {
                   <span className="d-lg-none d-md-block">Account</span>
                 </p>
               </Link>
+            </NavItem>
+            {/* Logout Button */}
+            <NavItem>
+              <button className="nav-link btn-rotate" onClick={handleLogout}>
+                {/* Replace the current logout icon with the new one */}
+                <i className="nc-icon nc-lock-circle-open" />
+                <p>
+                  <span className="d-lg-none d-md-block">Logout</span>
+                </p>
+              </button>
             </NavItem>
           </Nav>
         </Collapse>
